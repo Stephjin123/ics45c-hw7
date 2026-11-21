@@ -1,0 +1,105 @@
+#ifndef MATRIX_HPP
+#define MATRIX_HPP
+
+#include <iostream>
+
+#include "array.hpp"
+
+template <typename T>
+class Matrix {
+public:
+    Matrix();
+    Matrix(int rows, int cols);
+
+    Array<T>& operator[](int row);
+    const Array<T>& operator[](int row) const;
+
+    int num_rows() const;
+    int num_cols() const;
+
+    void fill(const T& val);
+
+    template <typename Fn>
+    void fill_with_fn(Fn fn);
+
+private:
+    int rows, cols;
+    Array<Array<T>> data;
+};
+
+template <typename T>
+std::ostream& operator<<(std::ostream& out, const Matrix<T>& matrix);
+
+template <typename T>
+std::istream& operator>>(std::istream& in, Matrix<T>& matrix);
+
+// ---------------------------------------------------------------------------
+// Definitions (rule of zero: no copy/move/destructor needed)
+// ---------------------------------------------------------------------------
+
+template <typename T>
+Matrix<T>::Matrix() : rows{0}, cols{0}, data{} {
+}
+
+template <typename T>
+Matrix<T>::Matrix(int rows, int cols) : rows{rows}, cols{cols}, data{rows} {
+    for (int i = 0; i < rows; ++i) {
+        data[i] = Array<T>{cols};
+    }
+}
+
+// Array already throws on a bad index, so no extra check here.
+template <typename T>
+Array<T>& Matrix<T>::operator[](int row) {
+    return data[row];
+}
+
+template <typename T>
+const Array<T>& Matrix<T>::operator[](int row) const {
+    return data[row];
+}
+
+template <typename T>
+int Matrix<T>::num_rows() const {
+    return rows;
+}
+
+template <typename T>
+int Matrix<T>::num_cols() const {
+    return cols;
+}
+
+template <typename T>
+void Matrix<T>::fill(const T& val) {
+    for (int i = 0; i < rows; ++i) {
+        data[i].fill(val);
+    }
+}
+
+template <typename T>
+template <typename Fn>
+void Matrix<T>::fill_with_fn(Fn fn) {
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            data[i][j] = fn(i, j);  // row i, column j
+        }
+    }
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& out, const Matrix<T>& matrix) {
+    for (int i = 0; i < matrix.num_rows(); ++i) {
+        out << matrix[i] << '\n';
+    }
+    return out;
+}
+
+template <typename T>
+std::istream& operator>>(std::istream& in, Matrix<T>& matrix) {
+    for (int i = 0; i < matrix.num_rows(); ++i) {
+        in >> matrix[i];
+    }
+    return in;
+}
+
+#endif
